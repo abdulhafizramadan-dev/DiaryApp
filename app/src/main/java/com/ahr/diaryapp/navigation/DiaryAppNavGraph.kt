@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 
 @Composable
 fun DiaryAppNavGraph(
@@ -29,7 +30,9 @@ fun NavGraphBuilder.authenticationScreen() {
     composable(
         route = Screen.Authentication.route
     ) {
+        AuthenticationScreen(loadingState = true) {
 
+        }
     }
 }
 
