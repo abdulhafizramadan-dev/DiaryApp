@@ -1,6 +1,13 @@
 package com.ahr.diaryapp.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
@@ -14,6 +21,8 @@ import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import io.realm.kotlin.mongodb.App
+import kotlinx.coroutines.launch
 
 @Composable
 fun DiaryAppNavGraph(
@@ -25,19 +34,26 @@ fun DiaryAppNavGraph(
         navController = navController,
         startDestination = startDestination
     ) {
-        authenticationScreen()
+        authenticationScreen(
+            navigateToHomeScreen = {
+                navController.popBackStack()
+                navController.navigate(Screen.Home.route)
+            }
+        )
         homeScreen()
         writeScreen()
     }
 
 }
 
-fun NavGraphBuilder.authenticationScreen() {
-    composable(
-        route = Screen.Authentication.route
-    ) {
+fun NavGraphBuilder.authenticationScreen(
+    navigateToHomeScreen: () -> Unit
+) {
+
+    composable(route = Screen.Authentication.route) {
 
         val authenticationViewModel: AuthenticationViewModel = viewModel()
+        val authenticated = authenticationViewModel.authenticated
         val signingLoadingState = authenticationViewModel.signingLoadingState
         val oneTapSignInState = rememberOneTapSignInState()
         val messageBarState = rememberMessageBarState()
@@ -45,6 +61,7 @@ fun NavGraphBuilder.authenticationScreen() {
         val appId = stringResource(id = R.string.app_id)
 
         AuthenticationScreen(
+            authenticated = authenticated,
             oneTapSignInState = oneTapSignInState,
             messageBarState = messageBarState,
             loadingState = signingLoadingState,
@@ -73,16 +90,26 @@ fun NavGraphBuilder.authenticationScreen() {
             onDialogDismissed = { message ->
                 authenticationViewModel.updateSigningLoadingState(false)
                 messageBarState.addError(Exception(message))
-            }
+            },
+            navigateToHomeScreen = navigateToHomeScreen
         )
     }
 }
 
 fun NavGraphBuilder.homeScreen() {
-    composable(
-        route = Screen.Home.route
-    ) {
-
+    composable(route = Screen.Home.route) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            val appMongoDb = App.create(stringResource(id = R.string.app_id))
+            val scope = rememberCoroutineScope()
+            Button(onClick = {
+                scope.launch { appMongoDb.currentUser?.logOut() }
+            }) {
+                Text(text = "Sign out...")
+            }
+        }
     }
 }
 

@@ -9,13 +9,17 @@ import io.realm.kotlin.mongodb.App
 import io.realm.kotlin.mongodb.Credentials
 import io.realm.kotlin.mongodb.GoogleAuthType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AuthenticationViewModel : ViewModel() {
 
-    var signingLoadingState by mutableStateOf(false)
+    var authenticated by mutableStateOf(false)
     private set
+
+    var signingLoadingState by mutableStateOf(false)
+        private set
 
     fun updateSigningLoadingState(state: Boolean) {
         signingLoadingState = state
@@ -37,6 +41,10 @@ class AuthenticationViewModel : ViewModel() {
                 }
                 withContext(Dispatchers.Main) {
                     onSuccess(result)
+                    if (result) {
+                        delay(3000)
+                        authenticated = true
+                    }
                 }
             } catch (exception: Exception) {
                 withContext(Dispatchers.Main) {
