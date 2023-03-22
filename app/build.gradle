@@ -101,6 +101,8 @@ dependencies {
     // OneTapCompose
     implementation 'com.github.stevdza-san:OneTapCompose:1.0.0'
 
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.29.2-rc"
+
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
 }
 
