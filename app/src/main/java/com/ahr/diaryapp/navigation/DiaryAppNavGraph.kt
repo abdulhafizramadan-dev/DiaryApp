@@ -1,13 +1,17 @@
 package com.ahr.diaryapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ahr.diaryapp.R
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
+import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
 
@@ -33,15 +37,42 @@ fun NavGraphBuilder.authenticationScreen() {
         route = Screen.Authentication.route
     ) {
 
+        val authenticationViewModel: AuthenticationViewModel = viewModel()
+        val signingLoadingState = authenticationViewModel.signingLoadingState
         val oneTapSignInState = rememberOneTapSignInState()
         val messageBarState = rememberMessageBarState()
+
+        val appId = stringResource(id = R.string.app_id)
 
         AuthenticationScreen(
             oneTapSignInState = oneTapSignInState,
             messageBarState = messageBarState,
-            loadingState = oneTapSignInState.opened,
+            loadingState = signingLoadingState,
             onButtonClicked = {
+                authenticationViewModel.updateSigningLoadingState(true)
                 oneTapSignInState.open()
+            },
+            onTokenIdReceived = { tokenId ->
+                authenticationViewModel.signingWithGoogleMongoDbAtlas(
+                    appId = appId,
+                    tokenId = tokenId,
+                    onSuccess = { isSigningSuccess ->
+                        authenticationViewModel.updateSigningLoadingState(false)
+                        if (isSigningSuccess) {
+                            messageBarState.addSuccess("Signing success!")
+                        } else {
+                            messageBarState.addError(Exception("Signing failed!"))
+                        }
+                    },
+                    onError = { exception ->
+                        authenticationViewModel.updateSigningLoadingState(false)
+                        messageBarState.addError(exception)
+                    }
+                )
+            },
+            onDialogDismissed = { message ->
+                authenticationViewModel.updateSigningLoadingState(false)
+                messageBarState.addError(Exception(message))
             }
         )
     }

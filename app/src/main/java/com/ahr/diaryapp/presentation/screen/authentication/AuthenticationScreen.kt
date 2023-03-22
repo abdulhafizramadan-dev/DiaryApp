@@ -1,6 +1,5 @@
 package com.ahr.diaryapp.presentation.screen.authentication
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -19,19 +18,16 @@ fun AuthenticationScreen(
     oneTapSignInState: OneTapSignInState,
     messageBarState: MessageBarState,
     loadingState: Boolean,
-    onButtonClicked: () -> Unit
+    onButtonClicked: () -> Unit,
+    onTokenIdReceived: (String) -> Unit,
+    onDialogDismissed: (String) -> Unit
 ) {
 
     OneTapSignInWithGoogle(
         state = oneTapSignInState,
         clientId = stringResource(id = R.string.client_id),
-        onTokenIdReceived = {
-            Log.d("TAG", "AuthenticationScreen: Auth Token = $it")
-            messageBarState.addSuccess("Sign in with google successfully")
-        },
-        onDialogDismissed = {
-            messageBarState.addError(Exception(it))
-        }
+        onTokenIdReceived = onTokenIdReceived,
+        onDialogDismissed = onDialogDismissed
     )
 
     Scaffold { contentPadding ->
