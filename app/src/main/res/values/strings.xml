@@ -4,4 +4,7 @@
     <string name="please_wait">Please wait…</string>
     <string name="auth_title">Welcome back</string>
     <string name="auth_subtitle">Please sign in to continue.</string>
+
+    <string name="app_id"></string>
+    <string name="client_id"></string>
 </resources>
