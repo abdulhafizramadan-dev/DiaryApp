@@ -1,6 +1,9 @@
 package com.ahr.diaryapp.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
@@ -10,11 +13,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ahr.diaryapp.R
+import com.ahr.diaryapp.presentation.component.DisplayAlertDialog
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
 import com.ahr.diaryapp.presentation.screen.home.HomeScreen
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import io.realm.kotlin.mongodb.App.Companion
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun DiaryAppNavGraph(
@@ -35,6 +43,10 @@ fun DiaryAppNavGraph(
         homeScreen(
             navigateToWriteScreen = {
                 navController.navigate(Screen.Write.route)
+            },
+            navigateToAuthenticationScreen = {
+                navController.popBackStack()
+                navController.navigate(Screen.Authentication.route)
             }
         )
         writeScreen()
@@ -92,13 +104,48 @@ fun NavGraphBuilder.authenticationScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.homeScreen(
-    navigateToWriteScreen: () -> Unit
+    navigateToWriteScreen: () -> Unit,
+    navigateToAuthenticationScreen: () -> Unit,
 ) {
     composable(route = Screen.Home.route) {
+
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        var signOutDialogOpened by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+
+        val appId = stringResource(id = R.string.app_id)
+
         HomeScreen(
-            onMenuClicked = {},
+            drawerState = drawerState,
+            onMenuClicked = {
+                scope.launch { drawerState.open() }
+            },
+            onSignOutClicked = {
+                signOutDialogOpened = true
+            },
             navigateToWriteScreen = navigateToWriteScreen
+        )
+
+        DisplayAlertDialog(
+            title = R.string.sign_out_dialog_title,
+            message = R.string.sign_out_dialog_message,
+            dialogOpened = signOutDialogOpened,
+            onDialogClosed = { signOutDialogOpened = false },
+            onDialogConfirmed = {
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        val user = Companion.create(appId).currentUser
+                        if (user != null) {
+                            user.logOut()
+                            withContext(Dispatchers.Main) {
+                                navigateToAuthenticationScreen()
+                            }
+                        }
+                    }
+                }
+            }
         )
     }
 }
