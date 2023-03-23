@@ -1,6 +1,8 @@
 package com.ahr.diaryapp.model
 
+import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
+import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PersistedName
 import org.mongodb.kbson.ObjectId
@@ -13,6 +15,6 @@ class Diary : RealmObject {
     var mood: String = Mood.Neutral.name
     var title: String = ""
     var description: String = ""
-    var images: String = ""
+    var images: RealmList<String> = realmListOf()
     var date: RealmInstant = RealmInstant.now()
 }
