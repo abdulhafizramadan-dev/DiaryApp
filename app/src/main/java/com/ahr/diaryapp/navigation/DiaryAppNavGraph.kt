@@ -1,13 +1,6 @@
 package com.ahr.diaryapp.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
@@ -19,10 +12,9 @@ import androidx.navigation.navArgument
 import com.ahr.diaryapp.R
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
+import com.ahr.diaryapp.presentation.screen.home.HomeScreen
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
-import io.realm.kotlin.mongodb.App
-import kotlinx.coroutines.launch
 
 @Composable
 fun DiaryAppNavGraph(
@@ -40,7 +32,11 @@ fun DiaryAppNavGraph(
                 navController.navigate(Screen.Home.route)
             }
         )
-        homeScreen()
+        homeScreen(
+            navigateToWriteScreen = {
+                navController.navigate(Screen.Write.route)
+            }
+        )
         writeScreen()
     }
 
@@ -96,20 +92,14 @@ fun NavGraphBuilder.authenticationScreen(
     }
 }
 
-fun NavGraphBuilder.homeScreen() {
+fun NavGraphBuilder.homeScreen(
+    navigateToWriteScreen: () -> Unit
+) {
     composable(route = Screen.Home.route) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            val appMongoDb = App.create(stringResource(id = R.string.app_id))
-            val scope = rememberCoroutineScope()
-            Button(onClick = {
-                scope.launch { appMongoDb.currentUser?.logOut() }
-            }) {
-                Text(text = "Sign out...")
-            }
-        }
+        HomeScreen(
+            onMenuClicked = {},
+            navigateToWriteScreen = navigateToWriteScreen
+        )
     }
 }
 
