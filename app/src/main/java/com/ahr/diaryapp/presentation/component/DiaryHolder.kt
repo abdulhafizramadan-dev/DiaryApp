@@ -1,12 +1,14 @@
 package com.ahr.diaryapp.presentation.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ fun DiaryHolder(diary: Diary, onClick: (String) -> Unit) {
 
     val localDensity = LocalDensity.current
     var componentHeight by remember { mutableStateOf(0.dp) }
+    var galleryOpened by remember { mutableStateOf(false) }
 
     Row {
         Spacer(modifier = Modifier.width(14.dp))
@@ -44,7 +47,7 @@ fun DiaryHolder(diary: Diary, onClick: (String) -> Unit) {
         Spacer(modifier = Modifier.width(20.dp))
         Surface(
             shape = MaterialTheme.shapes.medium,
-            onClick = { onClick(diary.id.toString()) },
+            onClick = { onClick(diary._id.toString()) },
             tonalElevation = Elevation.Level1,
             modifier = Modifier.onGloballyPositioned {
                 componentHeight = with(localDensity) { it.size.height.toDp() }
@@ -59,6 +62,25 @@ fun DiaryHolder(diary: Diary, onClick: (String) -> Unit) {
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis
                 )
+                if (diary.images.isNotEmpty()) {
+                    ShowGalleryButton(
+                        galleryOpened = galleryOpened,
+                        onClick = {
+                            galleryOpened = !galleryOpened
+                        }
+                    )
+                }
+                AnimatedVisibility(
+                    visible = galleryOpened,
+                    enter = fadeIn() + expandHorizontally(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
+                ) {
+                    Gallery(images = diary.images, modifier = Modifier.padding(all = 14.dp))
+                }
             }
         }
     }
@@ -93,6 +115,19 @@ fun DiaryHeader(moodName: String, time: Instant) {
                 .format(Date.from(time)),
             color = mood.contentColor,
             style = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+        )
+    }
+}
+
+@Composable
+fun ShowGalleryButton(
+    galleryOpened: Boolean,
+    onClick: () -> Unit
+) {
+    TextButton(onClick = onClick) {
+        Text(
+            text = if (galleryOpened) "Hide Gallery" else "Show Gallery",
+            style = TextStyle(fontSize = MaterialTheme.typography.bodySmall.fontSize)
         )
     }
 }
