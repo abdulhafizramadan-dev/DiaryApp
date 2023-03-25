@@ -10,7 +10,7 @@ import com.ahr.diaryapp.R
 @Composable
 fun DisplayAlertDialog(
     @StringRes title: Int,
-    @StringRes message: Int,
+    message: String,
     dialogOpened: Boolean,
     onDialogClosed: () -> Unit,
     onDialogConfirmed: () -> Unit
@@ -26,7 +26,7 @@ fun DisplayAlertDialog(
             },
             text = {
                 Text(
-                    text = stringResource(id = message),
+                    text = message,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     fontWeight = FontWeight.Normal
                 )

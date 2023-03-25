@@ -7,4 +7,17 @@
 
     <string name="app_id"></string>
     <string name="client_id"></string>
+    <string name="diary">Diary</string>
+    <string name="menu_icon">Menu Icon</string>
+    <string name="add_new_diary">Add new diary</string>
+    <string name="google_logo">Google logo</string>
+    <string name="logo">DiaryApp logo</string>
+    <string name="sign_out">Sign out</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="sign_out_dialog_title">Sign Out</string>
+    <string name="sign_out_dialog_message">Are you sure you want to Sign Out from your Google Account?</string>
+    <string name="delete">Delete</string>
+    <string name="delete_description">Are you sure you want to permanently delete this diary note %s?</string>
+    <string name="more_options">More options</string>
 </resources>

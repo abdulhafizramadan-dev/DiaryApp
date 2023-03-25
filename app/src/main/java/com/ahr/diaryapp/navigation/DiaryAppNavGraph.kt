@@ -13,11 +13,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ahr.diaryapp.R
+import com.ahr.diaryapp.model.Diary
 import com.ahr.diaryapp.presentation.component.DisplayAlertDialog
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
 import com.ahr.diaryapp.presentation.screen.home.HomeScreen
 import com.ahr.diaryapp.presentation.screen.home.HomeViewModel
+import com.ahr.diaryapp.presentation.screen.write.WriteScreen
 import com.ahr.diaryapp.util.RequestState
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
@@ -35,7 +37,7 @@ fun DiaryAppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Write.route
     ) {
         authenticationScreen(
             navigateToHomeScreen = {
@@ -54,7 +56,9 @@ fun DiaryAppNavGraph(
             },
             onDataLoaded = onDataLoaded
         )
-        writeScreen()
+        writeScreen(
+            onNavigationIconClicked = navController::popBackStack
+        )
     }
 
 }
@@ -63,7 +67,6 @@ fun NavGraphBuilder.authenticationScreen(
     navigateToHomeScreen: () -> Unit,
     onDataLoaded: () -> Unit
 ) {
-
     composable(route = Screen.Authentication.route) {
 
         val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
@@ -151,7 +154,7 @@ fun NavGraphBuilder.homeScreen(
 
         DisplayAlertDialog(
             title = R.string.sign_out_dialog_title,
-            message = R.string.sign_out_dialog_message,
+            message = stringResource(id = R.string.sign_out_dialog_message),
             dialogOpened = signOutDialogOpened,
             onDialogClosed = { signOutDialogOpened = false },
             onDialogConfirmed = {
@@ -171,7 +174,9 @@ fun NavGraphBuilder.homeScreen(
     }
 }
 
-fun NavGraphBuilder.writeScreen() {
+fun NavGraphBuilder.writeScreen(
+    onNavigationIconClicked: () -> Unit
+) {
     composable(
         route = Screen.Write.route,
         arguments = listOf(
@@ -181,6 +186,13 @@ fun NavGraphBuilder.writeScreen() {
             }
         )
     ) {
-
+        WriteScreen(
+            onNavigationIconClicked = onNavigationIconClicked,
+            onDeleteConfirmed = {},
+            diary = Diary().apply {
+                title = "Title"
+                description = "Description"
+            }
+        )
     }
 }
