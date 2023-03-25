@@ -5,7 +5,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -17,6 +17,7 @@ import com.ahr.diaryapp.presentation.component.DisplayAlertDialog
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
 import com.ahr.diaryapp.presentation.screen.home.HomeScreen
+import com.ahr.diaryapp.presentation.screen.home.HomeViewModel
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
 import io.realm.kotlin.mongodb.App.Companion
@@ -60,7 +61,7 @@ fun NavGraphBuilder.authenticationScreen(
 
     composable(route = Screen.Authentication.route) {
 
-        val authenticationViewModel: AuthenticationViewModel = viewModel()
+        val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
         val authenticated = authenticationViewModel.authenticated
         val signingLoadingState = authenticationViewModel.signingLoadingState
         val oneTapSignInState = rememberOneTapSignInState()
@@ -111,13 +112,17 @@ fun NavGraphBuilder.homeScreen(
 ) {
     composable(route = Screen.Home.route) {
 
+        val homeViewModel: HomeViewModel = hiltViewModel()
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         var signOutDialogOpened by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
 
+        val diariesMapped by homeViewModel.diariesMapped.collectAsState()
+
         val appId = stringResource(id = R.string.app_id)
 
         HomeScreen(
+            diaries = diariesMapped,
             drawerState = drawerState,
             onMenuClicked = {
                 scope.launch { drawerState.open() }

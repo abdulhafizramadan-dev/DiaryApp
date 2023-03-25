@@ -17,8 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.ahr.diaryapp.navigation.DiaryAppNavGraph
 import com.ahr.diaryapp.navigation.Screen
 import com.ahr.diaryapp.ui.theme.DiaryAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 import io.realm.kotlin.mongodb.App
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
