@@ -11,9 +11,11 @@ import com.ahr.diaryapp.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
-    onMenuClicked: () -> Unit
+    onMenuClicked: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = onMenuClicked) {
                 Icon(

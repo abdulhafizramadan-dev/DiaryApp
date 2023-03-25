@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import com.ahr.diaryapp.R
 import com.ahr.diaryapp.data.repository.DiariesResponse
@@ -23,11 +24,15 @@ fun HomeScreen(
     navigateToWriteScreen: () -> Unit,
     diaries: DiariesResponse
 ) {
+
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     HomeNavigationDrawer(drawerState = drawerState, onSignOutClicked = onSignOutClicked) {
         Scaffold(
             topBar = {
                 HomeTopAppBar(
-                    onMenuClicked = onMenuClicked
+                    scrollBehavior = scrollBehavior,
+                    onMenuClicked = onMenuClicked,
                 )
             },
             floatingActionButton = {
@@ -39,6 +44,7 @@ fun HomeScreen(
                     )
                 }
             },
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             content = {
                 when (diaries) {
                     is RequestState.Loading -> {
