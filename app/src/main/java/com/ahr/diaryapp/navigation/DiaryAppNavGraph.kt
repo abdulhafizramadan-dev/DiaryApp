@@ -1,5 +1,7 @@
 package com.ahr.diaryapp.navigation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
@@ -174,6 +176,7 @@ fun NavGraphBuilder.homeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 fun NavGraphBuilder.writeScreen(
     onNavigationIconClicked: () -> Unit
 ) {
@@ -186,7 +189,9 @@ fun NavGraphBuilder.writeScreen(
             }
         )
     ) {
+        val pagerState = rememberPagerState()
         WriteScreen(
+            pagerState = pagerState,
             onNavigationIconClicked = onNavigationIconClicked,
             onDeleteConfirmed = {},
             diary = Diary().apply {
