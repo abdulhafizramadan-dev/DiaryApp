@@ -22,9 +22,14 @@ import io.realm.kotlin.mongodb.App
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private var keepSplashScreen = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen()
+        installSplashScreen().setKeepOnScreenCondition {
+            keepSplashScreen
+        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             DiaryAppTheme {
@@ -39,7 +44,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     DiaryAppNavGraph(
                         navController = navController,
-                        startDestination = getStartDestination(appId = stringResource(id = R.string.app_id))
+                        startDestination = getStartDestination(appId = stringResource(id = R.string.app_id)),
+                        onDataLoaded = { keepSplashScreen = false }
                     )
                 }
             }
