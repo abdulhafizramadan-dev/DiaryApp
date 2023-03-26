@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.ahr.diaryapp.model.Diary
+import com.ahr.diaryapp.model.Mood
 import com.ahr.diaryapp.ui.theme.DiaryAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -19,6 +20,12 @@ fun WriteScreen(
     onNavigationIconClicked: () -> Unit,
     onDeleteConfirmed: () -> Unit,
     diary: Diary? = null,
+    title: String,
+    description: String,
+    mood: Mood,
+    onTitleChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onMoodChanged: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -31,10 +38,12 @@ fun WriteScreen(
     ) {
         WriteContent(
             pagerState = pagerState,
-            title = "",
-            onTitleChanged = {},
-            description = "",
-            onDescriptionChanged = {},
+            title = title,
+            description = description,
+            mood = mood,
+            onTitleChanged = onTitleChanged,
+            onDescriptionChanged = onDescriptionChanged,
+            onMoodChanged = onMoodChanged,
             modifier = Modifier.padding(it)
         )
     }
@@ -53,7 +62,13 @@ fun PreviewWriteScreen() {
             diary = Diary().apply {
                 title = "Title"
                 description = "Description"
-            }
+            },
+            title = "",
+            description = "",
+            mood = Mood.Neutral,
+            onTitleChanged = {},
+            onDescriptionChanged = {},
+            onMoodChanged = {}
         )
     }
 }

@@ -47,7 +47,7 @@ fun DiaryHolder(diary: Diary, onClick: (String) -> Unit) {
         Spacer(modifier = Modifier.width(20.dp))
         Surface(
             shape = MaterialTheme.shapes.medium,
-            onClick = { onClick(diary._id.toString()) },
+            onClick = { onClick(diary._id.toHexString()) },
             tonalElevation = Elevation.Level1,
             modifier = Modifier.onGloballyPositioned {
                 componentHeight = with(localDensity) { it.size.height.toDp() }

@@ -1,6 +1,5 @@
 package com.ahr.diaryapp.navigation
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
@@ -196,13 +195,10 @@ fun NavGraphBuilder.writeScreen(
             }
         )
     ) {
+
         val writeViewModel: WriteViewModel = hiltViewModel()
         val pagerState = rememberPagerState()
         val writeUiState = writeViewModel.writeUiState
-
-        LaunchedEffect(key1 = writeUiState) {
-            Log.d("TAG", "writeScreen: ui state = $writeUiState")
-        }
 
         WriteScreen(
             pagerState = pagerState,
@@ -211,7 +207,13 @@ fun NavGraphBuilder.writeScreen(
             diary = Diary().apply {
                 title = "Title"
                 description = "Description"
-            }
+            },
+            title = writeUiState.title,
+            description = writeUiState.description,
+            mood = writeUiState.mood,
+            onTitleChanged = writeViewModel::updateTitle,
+            onDescriptionChanged = writeViewModel::updateDescription,
+            onMoodChanged = writeViewModel::updateMood
         )
     }
 }

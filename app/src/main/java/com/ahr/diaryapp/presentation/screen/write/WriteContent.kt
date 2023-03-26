@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -27,9 +28,16 @@ fun WriteContent(
     onTitleChanged: (String) -> Unit,
     description: String,
     onDescriptionChanged: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    mood: Mood,
+    onMoodChanged: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(key1 = mood) {
+        pagerState.animateScrollToPage(mood.ordinal)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
