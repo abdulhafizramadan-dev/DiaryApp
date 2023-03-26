@@ -22,7 +22,8 @@ fun HomeScreen(
     onMenuClicked: () -> Unit,
     onSignOutClicked: () -> Unit,
     navigateToWriteScreen: () -> Unit,
-    diaries: DiariesResponse
+    diaries: DiariesResponse,
+    navigateToWriteScreenWithArgs: (String) -> Unit
 ) {
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -55,7 +56,7 @@ fun HomeScreen(
                     is RequestState.Success -> {
                         HomeContent(
                             diariesMap = diaries.data,
-                            onDiaryClicked = {},
+                            onDiaryClicked = navigateToWriteScreenWithArgs,
                             modifier = Modifier.padding(it)
                         )
                     }

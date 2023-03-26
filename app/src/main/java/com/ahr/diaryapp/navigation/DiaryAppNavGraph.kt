@@ -1,5 +1,6 @@
 package com.ahr.diaryapp.navigation
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
@@ -22,6 +23,7 @@ import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewMod
 import com.ahr.diaryapp.presentation.screen.home.HomeScreen
 import com.ahr.diaryapp.presentation.screen.home.HomeViewModel
 import com.ahr.diaryapp.presentation.screen.write.WriteScreen
+import com.ahr.diaryapp.presentation.screen.write.WriteViewModel
 import com.ahr.diaryapp.util.RequestState
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
@@ -39,7 +41,7 @@ fun DiaryAppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Write.route
+        startDestination = startDestination
     ) {
         authenticationScreen(
             navigateToHomeScreen = {
@@ -55,6 +57,9 @@ fun DiaryAppNavGraph(
             navigateToAuthenticationScreen = {
                 navController.popBackStack()
                 navController.navigate(Screen.Authentication.route)
+            },
+            navigateToWriteScreenWithArgs = { diaryId ->
+                navController.navigate(Screen.Write.routeWithDiaryId(diaryId))
             },
             onDataLoaded = onDataLoaded
         )
@@ -122,6 +127,7 @@ fun NavGraphBuilder.authenticationScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.homeScreen(
     navigateToWriteScreen: () -> Unit,
+    navigateToWriteScreenWithArgs: (String) -> Unit,
     navigateToAuthenticationScreen: () -> Unit,
     onDataLoaded: () -> Unit
 ) {
@@ -151,7 +157,8 @@ fun NavGraphBuilder.homeScreen(
             onSignOutClicked = {
                 signOutDialogOpened = true
             },
-            navigateToWriteScreen = navigateToWriteScreen
+            navigateToWriteScreen = navigateToWriteScreen,
+            navigateToWriteScreenWithArgs = navigateToWriteScreenWithArgs
         )
 
         DisplayAlertDialog(
@@ -189,7 +196,14 @@ fun NavGraphBuilder.writeScreen(
             }
         )
     ) {
+        val writeViewModel: WriteViewModel = hiltViewModel()
         val pagerState = rememberPagerState()
+        val writeUiState = writeViewModel.writeUiState
+
+        LaunchedEffect(key1 = writeUiState) {
+            Log.d("TAG", "writeScreen: ui state = $writeUiState")
+        }
+
         WriteScreen(
             pagerState = pagerState,
             onNavigationIconClicked = onNavigationIconClicked,
