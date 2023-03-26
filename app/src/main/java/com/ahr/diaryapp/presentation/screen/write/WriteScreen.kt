@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ahr.diaryapp.model.Diary
 import com.ahr.diaryapp.model.Mood
 import com.ahr.diaryapp.ui.theme.DiaryAppTheme
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -23,6 +24,7 @@ fun WriteScreen(
     title: String,
     description: String,
     mood: Mood,
+    date: Date,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onMoodChanged: (String) -> Unit,
@@ -32,7 +34,9 @@ fun WriteScreen(
             WriteTopAppBar(
                 onNavigationIconClicked = onNavigationIconClicked,
                 onDeleteConfirmed = onDeleteConfirmed,
-                selectedDiary = diary
+                selectedDiary = diary,
+                mood = mood,
+                date = date
             )
         }
     ) {
@@ -66,6 +70,7 @@ fun PreviewWriteScreen() {
             title = "",
             description = "",
             mood = Mood.Neutral,
+            date = Date(),
             onTitleChanged = {},
             onDescriptionChanged = {},
             onMoodChanged = {}

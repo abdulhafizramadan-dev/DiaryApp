@@ -16,7 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.ahr.diaryapp.R
 import com.ahr.diaryapp.model.Diary
+import com.ahr.diaryapp.model.Mood
 import com.ahr.diaryapp.presentation.component.DisplayAlertDialog
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +27,15 @@ fun WriteTopAppBar(
     onNavigationIconClicked: () -> Unit,
     onDeleteConfirmed: () -> Unit,
     selectedDiary: Diary? = null,
+    mood: Mood,
+    date: Date
 ) {
+
+    val topAppBarDate = remember {
+        SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+            .format(date)
+    }
+
     CenterAlignedTopAppBar(
         navigationIcon = {
             IconButton(onClick = onNavigationIconClicked) {
@@ -41,7 +52,7 @@ fun WriteTopAppBar(
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Happy",
+                    text = mood.name,
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight.Bold
@@ -50,7 +61,7 @@ fun WriteTopAppBar(
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "10 JAN 2023, 10:00 AM",
+                    text = topAppBarDate,
                     fontSize = MaterialTheme.typography.bodySmall.fontSize,
                     textAlign = TextAlign.Center
                 )

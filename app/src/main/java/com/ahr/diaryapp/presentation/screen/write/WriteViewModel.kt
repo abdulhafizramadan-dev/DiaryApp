@@ -7,12 +7,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahr.diaryapp.data.repository.MongoRepository
+import com.ahr.diaryapp.model.Diary
 import com.ahr.diaryapp.model.Mood
 import com.ahr.diaryapp.navigation.Screen
 import com.ahr.diaryapp.util.RequestState
+import com.ahr.diaryapp.util.toInstant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,9 +43,11 @@ class WriteViewModel @Inject constructor(
             viewModelScope.launch {
                 val diary = mongoRepository.getSelectedDiary(ObjectId(writeUiState.selectedDiaryId!!))
                 if (diary is RequestState.Success) {
+                    updateDiary(diary.data)
                     updateTitle(diary.data.title)
                     updateDescription(diary.data.description)
                     updateMood(diary.data.mood)
+                    updateDate(Date.from(diary.data.date.toInstant()))
                 }
             }
         }
@@ -63,6 +68,18 @@ class WriteViewModel @Inject constructor(
     fun updateMood(mood: String) {
         writeUiState = writeUiState.copy(
             mood = Mood.valueOf(mood)
+        )
+    }
+
+    fun updateDate(date: Date) {
+        writeUiState = writeUiState.copy(
+            date = date
+        )
+    }
+
+    fun updateDiary(diary: Diary) {
+        writeUiState = writeUiState.copy(
+            selectedDiary = diary
         )
     }
 

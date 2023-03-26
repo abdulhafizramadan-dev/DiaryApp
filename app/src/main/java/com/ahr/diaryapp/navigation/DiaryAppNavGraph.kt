@@ -15,7 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ahr.diaryapp.R
-import com.ahr.diaryapp.model.Diary
 import com.ahr.diaryapp.presentation.component.DisplayAlertDialog
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationScreen
 import com.ahr.diaryapp.presentation.screen.authentication.AuthenticationViewModel
@@ -204,13 +203,11 @@ fun NavGraphBuilder.writeScreen(
             pagerState = pagerState,
             onNavigationIconClicked = onNavigationIconClicked,
             onDeleteConfirmed = {},
-            diary = Diary().apply {
-                title = "Title"
-                description = "Description"
-            },
+            diary = writeUiState.selectedDiary,
             title = writeUiState.title,
             description = writeUiState.description,
             mood = writeUiState.mood,
+            date = writeUiState.date,
             onTitleChanged = writeViewModel::updateTitle,
             onDescriptionChanged = writeViewModel::updateDescription,
             onMoodChanged = writeViewModel::updateMood

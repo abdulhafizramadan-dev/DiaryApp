@@ -32,10 +32,15 @@ fun WriteContent(
     mood: Mood,
     onMoodChanged: (String) -> Unit
 ) {
+
     val scrollState = rememberScrollState()
 
     LaunchedEffect(key1 = mood) {
         pagerState.animateScrollToPage(mood.ordinal)
+    }
+
+    LaunchedEffect(key1 = pagerState.currentPage) {
+        onMoodChanged(Mood.values()[pagerState.currentPage].name)
     }
 
     Column(
@@ -62,7 +67,8 @@ fun WriteContent(
         }
         Spacer(modifier = Modifier.height(30.dp))
         TextField(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             value = title,
             onValueChange = onTitleChanged,
@@ -84,7 +90,8 @@ fun WriteContent(
             singleLine = true
         )
         TextField(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             value = description,
             onValueChange = onDescriptionChanged,
@@ -107,7 +114,8 @@ fun WriteContent(
         Button(
             onClick = {},
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.height(54.dp)
+            modifier = Modifier
+                .height(54.dp)
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
         ) {
