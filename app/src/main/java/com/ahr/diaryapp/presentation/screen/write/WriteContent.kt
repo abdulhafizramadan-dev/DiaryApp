@@ -1,6 +1,5 @@
 package com.ahr.diaryapp.presentation.screen.write
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -10,16 +9,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.getValue
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ahr.diaryapp.model.Mood
@@ -34,7 +29,8 @@ fun WriteContent(
     onDescriptionChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
     mood: Mood,
-    onMoodChanged: (String) -> Unit
+    onMoodChanged: (String) -> Unit,
+    onSaveClicked: () -> Unit
 ) {
 
     val scrollState = rememberScrollState()
@@ -117,7 +113,7 @@ fun WriteContent(
         )
         Spacer(modifier = Modifier.weight(1f))
         Button(
-            onClick = {},
+            onClick = onSaveClicked,
             shape = MaterialTheme.shapes.small,
             modifier = Modifier
                 .height(54.dp)

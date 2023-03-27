@@ -27,6 +27,7 @@ import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
 import io.realm.kotlin.mongodb.App.Companion
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -196,13 +197,30 @@ fun NavGraphBuilder.writeScreen(
     ) {
 
         val writeViewModel: WriteViewModel = hiltViewModel()
-        val pagerState = rememberPagerState()
         val writeUiState = writeViewModel.writeUiState
+        val pagerState = rememberPagerState()
+        val messageBarState = rememberMessageBarState()
+        val scope = rememberCoroutineScope()
 
         WriteScreen(
             pagerState = pagerState,
+            messageBarState = messageBarState,
             onNavigationIconClicked = onNavigationIconClicked,
             onDeleteConfirmed = {},
+            onSaveClicked = {
+                writeViewModel.insertNewDiary(
+                    onSuccess = {
+                        scope.launch {
+                            messageBarState.addSuccess("Success add new diary!")
+                            delay(3000)
+                            onNavigationIconClicked()
+                        }
+                    },
+                    onError = {
+                        messageBarState.addError(Exception(it.message))
+                    }
+                )
+            },
             diary = writeUiState.selectedDiary,
             title = writeUiState.title,
             description = writeUiState.description,

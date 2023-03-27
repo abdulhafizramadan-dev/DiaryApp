@@ -12,14 +12,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ahr.diaryapp.model.Diary
 import com.ahr.diaryapp.model.Mood
 import com.ahr.diaryapp.ui.theme.DiaryAppTheme
+import com.stevdzasan.messagebar.ContentWithMessageBar
+import com.stevdzasan.messagebar.MessageBarState
+import com.stevdzasan.messagebar.rememberMessageBarState
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun WriteScreen(
     pagerState: PagerState,
+    messageBarState: MessageBarState,
     onNavigationIconClicked: () -> Unit,
     onDeleteConfirmed: () -> Unit,
+    onSaveClicked: () -> Unit,
     diary: Diary? = null,
     title: String,
     description: String,
@@ -40,16 +45,22 @@ fun WriteScreen(
             )
         }
     ) {
-        WriteContent(
-            pagerState = pagerState,
-            title = title,
-            description = description,
-            mood = mood,
-            onTitleChanged = onTitleChanged,
-            onDescriptionChanged = onDescriptionChanged,
-            onMoodChanged = onMoodChanged,
+        ContentWithMessageBar(
+            messageBarState = messageBarState,
             modifier = Modifier.padding(it)
-        )
+        ) {
+            WriteContent(
+                pagerState = pagerState,
+                title = title,
+                description = description,
+                mood = mood,
+                onTitleChanged = onTitleChanged,
+                onDescriptionChanged = onDescriptionChanged,
+                onMoodChanged = onMoodChanged,
+                modifier = Modifier.padding(it),
+                onSaveClicked = onSaveClicked
+            )
+        }
     }
 }
 
@@ -61,6 +72,7 @@ fun PreviewWriteScreen() {
         val pagerState = rememberPagerState()
         WriteScreen(
             pagerState = pagerState,
+            messageBarState = rememberMessageBarState(),
             onNavigationIconClicked = {},
             onDeleteConfirmed = {},
             diary = Diary().apply {
@@ -73,7 +85,8 @@ fun PreviewWriteScreen() {
             date = Date(),
             onTitleChanged = {},
             onDescriptionChanged = {},
-            onMoodChanged = {}
+            onMoodChanged = {},
+            onSaveClicked = {}
         )
     }
 }

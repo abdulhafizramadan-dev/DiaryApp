@@ -17,4 +17,11 @@ class Diary : RealmObject {
     var description: String = ""
     var images: RealmList<String> = realmListOf()
     var date: RealmInstant = RealmInstant.now()
+
+    constructor(mood: Mood, title: String, description: String) : this() {
+        this.mood = mood.name
+        this.title = title
+        this.description = description
+    }
+    constructor()
 }

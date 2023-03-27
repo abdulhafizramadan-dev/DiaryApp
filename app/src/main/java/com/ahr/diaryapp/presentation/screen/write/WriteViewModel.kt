@@ -13,7 +13,9 @@ import com.ahr.diaryapp.navigation.Screen
 import com.ahr.diaryapp.util.RequestState
 import com.ahr.diaryapp.util.toInstant
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
 import java.util.*
 import javax.inject.Inject
@@ -53,6 +55,29 @@ class WriteViewModel @Inject constructor(
         }
     }
 
+    fun insertNewDiary(
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val diary = Diary(
+                writeUiState.mood,
+                writeUiState.title,
+                writeUiState.description
+            )
+            val insertResult = mongoRepository.insertNewDiary(diary)
+            if (insertResult is RequestState.Success) {
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            } else if (insertResult is RequestState.Error) {
+                withContext(Dispatchers.Main) {
+                    onError(insertResult.error)
+                }
+            }
+        }
+    }
+
     fun updateTitle(title: String) {
         writeUiState = writeUiState.copy(
             title = title
@@ -77,7 +102,7 @@ class WriteViewModel @Inject constructor(
         )
     }
 
-    fun updateDiary(diary: Diary) {
+    private fun updateDiary(diary: Diary) {
         writeUiState = writeUiState.copy(
             selectedDiary = diary
         )
