@@ -12,8 +12,8 @@ import io.realm.kotlin.mongodb.App
 import io.realm.kotlin.mongodb.sync.SyncConfiguration
 import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import org.mongodb.kbson.ObjectId
 import java.time.ZoneId
 
@@ -31,30 +31,34 @@ class MongoRepositoryImpl(private val context: Context) : MongoRepository {
         if (user != null) {
             val config = SyncConfiguration.Builder(user = user!!, schema = setOf(Diary::class))
                 .initialSubscriptions { sub ->
-                    add(sub.query<Diary>(query = "ownerId == $0", user?.id))
+                    add(sub.query<Diary>(query = "ownerId == $0", user?.id), name = "user diary subscriptions")
                 }
                 .build()
             realm = Realm.open(config)
         }
     }
 
-    override fun getAllDiaries(): Flow<DiariesResponse> = flow {
-        emit(RequestState.Loading)
-        if (user != null) {
-            val diariesResponse = realm.query<Diary>(query = "ownerId == $0", user?.id)
-                .sort(property = "date", Sort.DESCENDING)
-                .find()
-                .groupBy {  diary ->
-                    diary.date.toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()
-                }
-            emit(RequestState.Success(diariesResponse))
+    override fun getAllDiaries(): Flow<DiariesResponse> {
+        return if (user != null) {
+            try {
+                realm.query<Diary>(query = "ownerId == $0", user?.id)
+                    .sort(property = "date", Sort.DESCENDING)
+                    .asFlow()
+                    .map { result ->
+                        RequestState.Success(
+                            result.list.groupBy {  diary ->
+                                diary.date.toInstant()
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                            }
+                        )
+                    }
+            } catch (exception: Exception) {
+                flow { emit(RequestState.Error(exception)) }
+            }
         } else {
-            emit(RequestState.Error(UserNotAuthenticateException()))
+            flow { emit(RequestState.Error(UserNotAuthenticateException())) }
         }
-    }.catch { exception ->
-        emit(RequestState.Error(exception))
     }
 
     override fun getSelectedDiary(diaryId: ObjectId): RequestState<Diary> {
