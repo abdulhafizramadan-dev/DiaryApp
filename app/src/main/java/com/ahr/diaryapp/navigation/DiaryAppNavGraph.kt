@@ -208,16 +208,16 @@ fun NavGraphBuilder.writeScreen(
             onNavigationIconClicked = onNavigationIconClicked,
             onDeleteConfirmed = {},
             onSaveClicked = {
-                writeViewModel.insertNewDiary(
-                    onSuccess = {
+                writeViewModel.upsertDiary(
+                    onSuccess = { message ->
                         scope.launch {
-                            messageBarState.addSuccess("Success add new diary!")
+                            messageBarState.addSuccess(message)
                             delay(3000)
                             onNavigationIconClicked()
                         }
                     },
-                    onError = {
-                        messageBarState.addError(Exception(it.message))
+                    onError = { message ->
+                        messageBarState.addError(Exception(message))
                     }
                 )
             },

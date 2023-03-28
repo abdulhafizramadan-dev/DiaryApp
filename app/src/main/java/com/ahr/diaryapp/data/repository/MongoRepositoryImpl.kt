@@ -3,6 +3,7 @@ package com.ahr.diaryapp.data.repository
 import android.content.Context
 import com.ahr.diaryapp.R
 import com.ahr.diaryapp.model.Diary
+import com.ahr.diaryapp.util.DiaryNotFoundException
 import com.ahr.diaryapp.util.RequestState
 import com.ahr.diaryapp.util.UserNotAuthenticateException
 import com.ahr.diaryapp.util.toInstant
@@ -61,13 +62,15 @@ class MongoRepositoryImpl(private val context: Context) : MongoRepository {
         }
     }
 
-    override fun getSelectedDiary(diaryId: ObjectId): Flow<DiaryResponse> {
-        return if (user != null) {
+    override fun getSelectedDiary(diaryId: ObjectId): Flow<DiaryResponse> = flow{
+        if (user != null) {
             try {
-                realm.query<Diary>(query = "_id == $0", diaryId).find().asFlow()
-                    .map {
-                        RequestState.Success(it.list.first())
-                    }
+                val diary = realm.query<Diary>(query = "_id == $0", diaryId).first().find()
+                if (diary != null) {
+                    emit(RequestState.Success(diary))
+                } else {
+                    emit(RequestState.Error(DiaryNotFoundException()))
+                }
             } catch (exception: Exception) {
                 flow { emit(RequestState.Error(exception)) }
             }
@@ -76,7 +79,7 @@ class MongoRepositoryImpl(private val context: Context) : MongoRepository {
         }
     }
 
-    override suspend fun insertNewDiary(diary: Diary): RequestState<Diary> {
+    override suspend fun insertDiary(diary: Diary): RequestState<Diary> {
         return if (user != null) {
             try {
                 val diaryResult = realm.write {
@@ -85,6 +88,29 @@ class MongoRepositoryImpl(private val context: Context) : MongoRepository {
                     })
                 }
                 RequestState.Success(diaryResult)
+            } catch (exception: Exception) {
+                RequestState.Error(exception)
+            }
+        } else {
+            RequestState.Error(UserNotAuthenticateException())
+        }
+    }
+
+    override suspend fun updateUpdate(diary: Diary): DiaryResponse {
+        return if (user != null) {
+            try {
+                realm.write {
+                    val diaryResult = query<Diary>(query = "_id == $0", diary._id).first().find()
+                    if (diaryResult != null) {
+                        diaryResult.mood = diary.mood
+                        diaryResult.title = diary.title
+                        diaryResult.description = diary.description
+                        diaryResult.date = diary.date
+                        RequestState.Success(diaryResult)
+                    } else {
+                        RequestState.Error(Exception("Diary not found!"))
+                    }
+                }
             } catch (exception: Exception) {
                 RequestState.Error(exception)
             }

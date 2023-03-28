@@ -12,6 +12,7 @@ import com.ahr.diaryapp.model.Mood
 import com.ahr.diaryapp.navigation.Screen
 import com.ahr.diaryapp.util.RequestState
 import com.ahr.diaryapp.util.toInstant
+import com.ahr.diaryapp.util.toRealmInstant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,25 +57,62 @@ class WriteViewModel @Inject constructor(
         }
     }
 
-    fun insertNewDiary(
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit,
+    private suspend fun insertDiary(
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val diary = Diary(
-                writeUiState.mood,
-                writeUiState.title,
-                writeUiState.description
-            )
-            val insertResult = mongoRepository.insertNewDiary(diary)
+        val diary = Diary(
+            writeUiState.mood,
+            writeUiState.title,
+            writeUiState.description
+        )
+        val insertResult = mongoRepository.insertDiary(diary)
+        if (insertResult is RequestState.Success) {
+            withContext(Dispatchers.Main) {
+                onSuccess("Success insert diary!")
+            }
+        } else if (insertResult is RequestState.Error) {
+            withContext(Dispatchers.Main) {
+                onError(insertResult.error.message.toString())
+            }
+        }
+    }
+
+    private suspend fun updateDiary(
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        val selectedDiary = writeUiState.selectedDiary
+        if (selectedDiary != null) {
+            val diary = Diary().apply {
+                _id = selectedDiary._id
+                mood = writeUiState.mood.name
+                title = writeUiState.title
+                description = writeUiState.description
+                date = writeUiState.date.toInstant().toRealmInstant()
+            }
+            val insertResult = mongoRepository.updateUpdate(diary)
             if (insertResult is RequestState.Success) {
                 withContext(Dispatchers.Main) {
-                    onSuccess()
+                    onSuccess("Success update diary!")
                 }
             } else if (insertResult is RequestState.Error) {
                 withContext(Dispatchers.Main) {
-                    onError(insertResult.error)
+                    onError(insertResult.error.message.toString())
                 }
+            }
+        }
+    }
+
+    fun upsertDiary(
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (writeUiState.selectedDiaryId != null) {
+                updateDiary(onSuccess = onSuccess, onError = onError)
+            } else {
+                insertDiary(onSuccess = onSuccess, onError = onError)
             }
         }
     }
