@@ -25,13 +25,14 @@ import java.util.*
 @Composable
 fun WriteTopAppBar(
     onNavigationIconClicked: () -> Unit,
+    onClockIconClicked: () -> Unit,
     onDeleteConfirmed: () -> Unit,
     selectedDiary: Diary? = null,
     mood: Mood,
-    date: Date
+    date: Date,
 ) {
 
-    val topAppBarDate = remember {
+    val topAppBarDate = remember(key1 = date) {
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
             .format(date)
     }
@@ -68,7 +69,7 @@ fun WriteTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = onClockIconClicked) {
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = "Select date",

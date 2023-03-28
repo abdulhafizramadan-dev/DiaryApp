@@ -23,6 +23,13 @@ import com.ahr.diaryapp.presentation.screen.home.HomeViewModel
 import com.ahr.diaryapp.presentation.screen.write.WriteScreen
 import com.ahr.diaryapp.presentation.screen.write.WriteViewModel
 import com.ahr.diaryapp.util.RequestState
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
+import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockSelection
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
 import io.realm.kotlin.mongodb.App.Companion
@@ -30,6 +37,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.*
 
 @Composable
 fun DiaryAppNavGraph(
@@ -182,7 +194,7 @@ fun NavGraphBuilder.homeScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.writeScreen(
     onNavigationIconClicked: () -> Unit
 ) {
@@ -202,10 +214,16 @@ fun NavGraphBuilder.writeScreen(
         val messageBarState = rememberMessageBarState()
         val scope = rememberCoroutineScope()
 
+        val dateDialogState = rememberSheetState()
+        val timeDialogState = rememberSheetState()
+        var userChosenDate by remember { mutableStateOf(LocalDate.now()) }
+        var userChosenTime by remember { mutableStateOf(LocalTime.now()) }
+
         WriteScreen(
             pagerState = pagerState,
             messageBarState = messageBarState,
             onNavigationIconClicked = onNavigationIconClicked,
+            onClockIconClicked = { dateDialogState.show() },
             onDeleteConfirmed = {},
             onSaveClicked = {
                 writeViewModel.upsertDiary(
@@ -229,6 +247,34 @@ fun NavGraphBuilder.writeScreen(
             onTitleChanged = writeViewModel::updateTitle,
             onDescriptionChanged = writeViewModel::updateDescription,
             onMoodChanged = writeViewModel::updateMood
+        )
+
+        CalendarDialog(
+            state = dateDialogState,
+            config = CalendarConfig(
+                monthSelection = true,
+                yearSelection = true,
+                style = CalendarStyle.MONTH,
+
+            ),
+            selection = CalendarSelection.Date { date ->
+                userChosenDate = date
+                timeDialogState.show()
+            }
+        )
+
+        ClockDialog(
+            state = timeDialogState,
+            selection = ClockSelection.HoursMinutes { hours, minutes ->
+                userChosenTime = LocalTime.of(hours, minutes)
+                writeViewModel.updateDate(
+                    ZonedDateTime.of(
+                        userChosenDate,
+                        userChosenTime,
+                        ZoneId.systemDefault()
+                    )
+                )
+            }
         )
     }
 }

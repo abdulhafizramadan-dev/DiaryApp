@@ -15,7 +15,7 @@ import com.ahr.diaryapp.ui.theme.DiaryAppTheme
 import com.stevdzasan.messagebar.ContentWithMessageBar
 import com.stevdzasan.messagebar.MessageBarState
 import com.stevdzasan.messagebar.rememberMessageBarState
-import java.util.Date
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -23,6 +23,7 @@ fun WriteScreen(
     pagerState: PagerState,
     messageBarState: MessageBarState,
     onNavigationIconClicked: () -> Unit,
+    onClockIconClicked: () -> Unit,
     onDeleteConfirmed: () -> Unit,
     onSaveClicked: () -> Unit,
     diary: Diary? = null,
@@ -38,6 +39,7 @@ fun WriteScreen(
         topBar = {
             WriteTopAppBar(
                 onNavigationIconClicked = onNavigationIconClicked,
+                onClockIconClicked = onClockIconClicked,
                 onDeleteConfirmed = onDeleteConfirmed,
                 selectedDiary = diary,
                 mood = mood,
@@ -74,6 +76,7 @@ fun PreviewWriteScreen() {
             pagerState = pagerState,
             messageBarState = rememberMessageBarState(),
             onNavigationIconClicked = {},
+            onClockIconClicked = {},
             onDeleteConfirmed = {},
             diary = Diary().apply {
                 title = "Title"

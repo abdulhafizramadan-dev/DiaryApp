@@ -18,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -50,7 +52,8 @@ class WriteViewModel @Inject constructor(
                         updateTitle(diary.data.title)
                         updateDescription(diary.data.description)
                         updateMood(diary.data.mood)
-                        updateDate(Date.from(diary.data.date.toInstant()))
+                        val zonedDateTime = diary.data.date.toInstant().atZone(ZoneId.systemDefault())
+                        updateDate(zonedDateTime)
                     }
                 }
             }
@@ -64,7 +67,8 @@ class WriteViewModel @Inject constructor(
         val diary = Diary(
             writeUiState.mood,
             writeUiState.title,
-            writeUiState.description
+            writeUiState.description,
+            writeUiState.date.toInstant().toRealmInstant()
         )
         val insertResult = mongoRepository.insertDiary(diary)
         if (insertResult is RequestState.Success) {
@@ -135,9 +139,9 @@ class WriteViewModel @Inject constructor(
         )
     }
 
-    fun updateDate(date: Date) {
+    fun updateDate(date: ZonedDateTime) {
         writeUiState = writeUiState.copy(
-            date = date
+            date = Date.from(date.toInstant())
         )
     }
 
