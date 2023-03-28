@@ -61,16 +61,18 @@ class MongoRepositoryImpl(private val context: Context) : MongoRepository {
         }
     }
 
-    override fun getSelectedDiary(diaryId: ObjectId): RequestState<Diary> {
+    override fun getSelectedDiary(diaryId: ObjectId): Flow<DiaryResponse> {
         return if (user != null) {
             try {
-                val diary = realm.query<Diary>(query = "_id == $0", diaryId).find().first()
-                RequestState.Success(diary)
+                realm.query<Diary>(query = "_id == $0", diaryId).find().asFlow()
+                    .map {
+                        RequestState.Success(it.list.first())
+                    }
             } catch (exception: Exception) {
-                RequestState.Error(exception)
+                flow { emit(RequestState.Error(exception)) }
             }
         } else {
-            RequestState.Error(UserNotAuthenticateException())
+            flow { emit(RequestState.Error(UserNotAuthenticateException())) }
         }
     }
 

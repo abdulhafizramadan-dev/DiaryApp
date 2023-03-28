@@ -7,10 +7,11 @@ import org.mongodb.kbson.ObjectId
 import java.time.LocalDate
 
 typealias DiariesResponse = RequestState<Map<LocalDate, List<Diary>>>
+typealias DiaryResponse = RequestState<Diary>
 
 interface MongoRepository {
     fun configureRealm()
     fun getAllDiaries(): Flow<DiariesResponse>
-    fun getSelectedDiary(diaryId: ObjectId): RequestState<Diary>
-    suspend fun insertNewDiary(diary: Diary): RequestState<Diary>
+    fun getSelectedDiary(diaryId: ObjectId): Flow<DiaryResponse>
+    suspend fun insertNewDiary(diary: Diary): DiaryResponse
 }

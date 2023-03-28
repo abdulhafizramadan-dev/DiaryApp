@@ -43,13 +43,14 @@ class WriteViewModel @Inject constructor(
     private fun getSelectedDiary() {
         if (writeUiState.selectedDiaryId != null) {
             viewModelScope.launch {
-                val diary = mongoRepository.getSelectedDiary(ObjectId(writeUiState.selectedDiaryId!!))
-                if (diary is RequestState.Success) {
-                    updateDiary(diary.data)
-                    updateTitle(diary.data.title)
-                    updateDescription(diary.data.description)
-                    updateMood(diary.data.mood)
-                    updateDate(Date.from(diary.data.date.toInstant()))
+                mongoRepository.getSelectedDiary(ObjectId(writeUiState.selectedDiaryId!!)).collect { diary ->
+                    if (diary is RequestState.Success) {
+                        updateDiary(diary.data)
+                        updateTitle(diary.data.title)
+                        updateDescription(diary.data.description)
+                        updateMood(diary.data.mood)
+                        updateDate(Date.from(diary.data.date.toInstant()))
+                    }
                 }
             }
         }
